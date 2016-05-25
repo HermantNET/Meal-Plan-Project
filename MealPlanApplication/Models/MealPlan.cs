@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNet.Identity;
+using System.Web.Mvc;
 
 namespace MealPlanApplication.Models
 {
+    [Authorize]
     public class MealPlan
     {
+        [ScaffoldColumn(false)]
         public int MealPlanID { get; set; }
+
+        public int UserID { get; set; }
+
+        public int FoodsID { get; set; }
 
         public List<Food> Foods { get; set; }
 
-        public double TotalCalories { get; set; }
+        private double totalCalories = 0;
+        public object TotalCalories { get { return totalCalories; } set { double.TryParse(value.ToString(), out totalCalories); } }
 
-        public double Carbohydrates { get { return macroRatio[0]; } set { macroRatio[0] = value; } }
-        public double Proteins { get { return macroRatio[1]; } set { macroRatio[1] = value; } }
-        public double Fats { get { return macroRatio[2]; } set { macroRatio[2] = value; } }
+        public double Carbohydrates { get { return macroRatio[0]; } set {  double.TryParse(value.ToString(), out macroRatio[0]); } }
+        public double Proteins { get { return macroRatio[1]; } set { double.TryParse(value.ToString(), out macroRatio[1]); } }
+        public double Fats { get { return macroRatio[2]; } set { double.TryParse(value.ToString(), out macroRatio[2]); } }
         private double[] macroRatio = { 40, 30, 30 };
         public string MacroRatio
         {
@@ -42,26 +50,81 @@ namespace MealPlanApplication.Models
             }
         }
 
-        private string myMealPlan;
-        public string MyMealPlan
+        private List<string>[] myPlan { get; set; }
+        public List<string>[] MyPlan { get { return myPlan; } }
+        
+        public void CreateMealPlan()
         {
-            get { return myMealPlan; }
-            set { if (Foods != null) {
-                    double[] total = new double[2];
-                    //var Breakfast = (Foods.Select(foo =>)).ToList();
+            List<string>[] ThePlan = new List<string>[3];
 
-                    ratioCheck();
-                    for(int i = 0;i < 3; i++)
+            if (Foods != null) {
+                //Macros
+                double[] total = new double[3];
+                var foods = (Foods.Select(foo => foo)).ToList();
+                //seperating foods by time of day
+                var breakfast = foods.Select(foo => foo.Breakfast = true).ToList();
+                var lunch = foods.Select(foo => foo.Lunch = true).ToList();
+                var dinner = foods.Select(foo => foo.Dinner = true).ToList();
+                var snack = foods.Select(foo => foo.Snack = true).ToList();
+
+                //number of items in each list
+                int[] max = { breakfast.Count(), lunch.Count(), dinner.Count(), snack.Count() };
+
+                //randomizer
+                Random rand = new Random();
+
+
+                /*************End of Variables*************/
+
+                ratioCheck();
+                for (int i = 0; i < 3; i++)
+                {
+                    total[i] = (((double)TotalCalories / (macroRatio[i] / 100)) / 4) - 100;
+                }
+
+                total[3] = (double)TotalCalories - total[0] + total[1] + total[2];
+                
+                //Generate Breakfast portion of plan
+                for (int macros = 0; macros < 3; macros++)
+                for (int i = 0; i < total[macros];) {
+                        Food random = new Food();
+                        random = (Food)breakfast.ElementAt(rand.Next(max[0]));
+                        i += random.Calories;
+                        ThePlan[0].Add(random.Name);
+                }
+
+                //Generate Lunch portion of plan
+                for (int macros = 0; macros < 3; macros++)
+                    for (int i = 0; i < total[macros];)
                     {
-                        total[i] = TotalCalories / macroRatio[i];
+                        Food random = new Food();
+                        random = (Food)lunch.ElementAt(rand.Next(max[1]));
+                        i += random.Calories;
+                        ThePlan[1].Add(random.Name);
                     }
 
-                    //for (int i = 0; i < 3; i++)
-                    //{
-                    //    total[i]
-                    //}
-                }
+                //Generate dinner portion of plan
+                for (int macros = 0; macros < 3; macros++)
+                    for (int i = 0; i < total[macros];)
+                    {
+                        Food random = new Food();
+                        random = (Food)dinner.ElementAt(rand.Next(max[2]));
+                        i += random.Calories;
+                        ThePlan[2].Add(random.Name);
+                    }
+
+                //Generate snack portion of plan
+                for (int macros = 0; macros < 3; macros++)
+                    for (int i = 0; i < total[macros];)
+                    {
+                        Food random = new Food();
+                        random = (Food)snack.ElementAt(rand.Next(max[3]));
+                        i += random.Calories;
+                        ThePlan[3].Add(random.Name);
+                    }
             }
-        }       
+
+            myPlan = ThePlan;
+        }
     }
 }

@@ -1,0 +1,51 @@
+﻿@model IEnumerable<MealPlanApplication.Models.MealPlan>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.FoodsID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Carbohydrates)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Proteins)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Fats)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.FoodsID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Carbohydrates)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Proteins)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Fats)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.MealPlanID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.MealPlanID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.MealPlanID })
+        </td>
+    </tr>
+}
+
+</table>

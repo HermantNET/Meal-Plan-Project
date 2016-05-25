@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace MealPlanApplication.Models
 {
@@ -16,8 +18,7 @@ namespace MealPlanApplication.Models
             // Add custom user claims here
             return userIdentity;
         }
-
-        public MealPlan MyMealPlan { get; set; }
+        public MealPlan MealPlan { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -31,5 +32,9 @@ namespace MealPlanApplication.Models
         {
             return new ApplicationDbContext();
         }
+
+        public System.Data.Entity.DbSet<MealPlanApplication.Models.MealPlan> MealPlans { get; set; }
+
+        public System.Data.Entity.DbSet<MealPlanApplication.Models.Food> Foods { get; set; }
     }
 }
